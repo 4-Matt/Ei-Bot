@@ -1,0 +1,8 @@
+dango
+Ei responds with the only appropriate answer and also gives you the latency. :table_tennis: Example: `!dango`
+blessing
+Ei gives you a few words of encouragement. How sweet. :heart: Example: `!blessing`
+schedulemessage
+Ei relays your message to the other occupants of the server at your time of choice. This example sends the message 4 days, 3 hours, and 7 minutes from the time it was sent. :stopwatch: Example: `!schedulemessage 4 3 7 Glory to the Shogun and her everlasting reign!`
+eightball
+Ei stares into her magnificent, crystal baal (heh) and gives you the truth, the whole truth, and nothing but the truth. So help you, archon. :crystal_ball:
