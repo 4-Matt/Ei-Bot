@@ -1,66 +1,82 @@
+# Import the os module.
+import os
+# Import discord.py
 import discord
-from discord.ext import commands
 # Import Inspirobot
 import inspirobot
 # Import datetime
 import datetime
-# Import calendar
-import calendar
 # Import asyncio
 import asyncio
 # Import random
 import random
 
-# Initialize the 8ball responses
-EIGHTBAAL_RESPONSES = []
-newfile = open("8ball_responses.txt")
-for line in newfile:
-    EIGHTBAAL_RESPONSES.append(line.strip('\n'))
+# Import load_dotenv function from dotenv module
+from dotenv import load_dotenv
+# Import commands from the discord.ext module
+from discord.ext import commands
+# Import commands from Commands.py
+from Commands import Commands
 
-class Commands(commands.Cog):
+# Loads the .env file
+load_dotenv()
+# Grab the token from the .env file
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
-    def __init__(self, client):
-        self.client = client
-    # When a command is given starting with the command prefix and "dango", return "milk" and a cute emoji.
-    @commands.command()
-    async def dango(self, ctx):
-        em = discord.Embed(title = "milk :bubble_tea:", description = "(" + str(self.client.latency)[0:5] + "ms) :ping_pong:", color = discord.Colour.purple())
-        await ctx.send(embed = em)
+# Initialize the list of commands
+COMMAND_LIST = {}
+# Read all the commands and descriptions from the "CommandDescriptions.txt" file.
+myfile = open("CommandDescriptions.txt")
+next_line = myfile.readline()
+count = 0
+command_name = next_line.strip("\n")
+command_description = ""
+while next_line != "":
+    count += 1
+    if count % 2 != 0 and next_line.strip("\n") != "":
+        command_name = next_line.strip("\n")
+    elif count % 2 == 0 and next_line.strip("\n") != "":
+        command_description = next_line.strip("\n")
+    next_line = myfile.readline()
+    COMMAND_LIST[command_name] = command_description
 
-    # Generates a quote with the inspirobot API and sends it to the channel.
-    @commands.command()
-    async def blessing(self, ctx):
-        quote = inspirobot.generate()
-        print(quote)
-        message = "When thou asketh the Almighty Narukami Ogosho for a blessing, thou shalt receive. :purple_heart:"
-        await ctx.send(message)
-        await ctx.send(quote)
+# Class for custom help command
+class CustomHelpCommand(commands.HelpCommand):
 
-    @commands.command(aliases = ['8ball'])
-    async def eightball(self, ctx, *args):
-        # Get Message Content
-        msg = ''
-        for item in args:
-            item += " "
-            msg += item
-        if msg == '':
-            em = discord.Embed(title = msg, description = "Insolent! At least ask a question...:pensive:", color = discord.Colour.purple())
-            await ctx.send(embed = em)
-        else:
-            index = random.randint(0, 19)
-            em = discord.Embed(title = msg, description = EIGHTBAAL_RESPONSES[index], color = discord.Colour.purple())
-            await ctx.send(embed = em)
+    def __init__(self):
+        super().__init__()
 
-    @commands.command()
-    async def schedulemessage(self, ctx, days: int, hours: int, minutes: int, *args):
-        # Get Message Content
-        msg = ''
-        for item in args:
-            item += " "
-            msg += item
-        wait_time = ((days * 86400) + (hours * 3600) + (minutes * 60))
-        await ctx.send(f'\"{msg}\" will be sent {days} days, {hours} hours, and {minutes} minutes from now!~')
-        # wait x amount of timex
-        await asyncio.sleep(wait_time)
-        await ctx.send(msg)
+    # Called when !help is called
+    async def send_bot_help(self, mapping):
+        em = discord.Embed(title = "Help", description = "Use !help and a command name for more info on each command :dango:~", color = discord.Colour.purple())
+        em.add_field(name = "Utility", value = "dango, schedulemessage")
+        em.add_field(name = "Fun", value =  "8ball, blessing")
+        await self.get_destination().send(embed = em)
 
+    # Called when !help [command name] is called.
+    async def send_command_help(self, command):
+        em = discord.Embed(title = command.name, description = COMMAND_LIST[command.name], color = discord.Colour.purple())
+        await self.get_destination().send(embed = em)
+
+# Creates a new bot object with a specified prefix.
+client = commands.Bot(command_prefix = "!", help_command = CustomHelpCommand())
+# Add the Commands cog
+client.add_cog(Commands(client))
+
+# Event listener - runs when the bot goes online.
+@client.event
+async def on_ready():
+    # Initializes a server counter
+    guild_count = 0
+    # Loops through every server the bot is in
+    for guild in client.guilds:
+        # Print the server's id and name.
+        print(f"- {guild.id} (name: {guild.name})")
+        # Increments the server counter
+        guild_count = guild_count + 1
+    # Prints the number of servers the bot is in
+    print("Ei is granting " + str(guild_count) + " electro visions.")
+
+# Executes the bot
+if __name__ == "__main__":
+    client.run(DISCORD_TOKEN)
