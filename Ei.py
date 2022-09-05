@@ -61,7 +61,7 @@ class CustomHelpCommand(commands.HelpCommand):
         await self.get_destination().send(embed = em)
 
 # CREATES A NEW BOT OBJECT WITH A SPECIFIED PREFIX. IT CAN BE WHATEVER YOU WANT IT TO BE.
-client = commands.Bot(command_prefix = "!", help_command = CustomHelpCommand())
+client = commands.Bot(command_prefix = "!", help_command = CustomHelpCommand(), intents = discord.Intents.all())
 # Add the Commands cog
 client.add_cog(Commands(client))
 
