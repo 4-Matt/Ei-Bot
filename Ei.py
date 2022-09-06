@@ -60,25 +60,33 @@ class CustomHelpCommand(commands.HelpCommand):
         em = discord.Embed(title = command.name, description = COMMAND_LIST[command.name], color = discord.Colour.purple())
         await self.get_destination().send(embed = em)
 
-# CREATES A NEW BOT OBJECT WITH A SPECIFIED PREFIX. IT CAN BE WHATEVER YOU WANT IT TO BE.
-client = commands.Bot(command_prefix = "!", help_command = CustomHelpCommand(), intents = discord.Intents.all())
-# Add the Commands cog
-client.add_cog(Commands(client))
+class EiBot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-# EVENT LISTENER FOR WHEN THE BOT HAS SWITCHED FROM OFFLINE TO ONLINE.
-@client.event
-async def on_ready():
-    # CREATES A COUNTER TO KEEP TRACK OF HOW MANY GUILDS / SERVERS THE BOT IS CONNECTED TO.
-    guild_count = 0
-    # LOOPS THROUGH ALL THE GUILD / SERVERS THAT THE BOT IS ASSOCIATED WITH.
-    for guild in client.guilds:
-        # PRINT THE SERVER'S ID AND NAME.
-        print(f"- {guild.id} (name: {guild.name})")
-        # INCREMENTS THE GUILD COUNTER.
-        guild_count = guild_count + 1
-    # PRINTS HOW MANY GUILDS / SERVERS THE BOT IS IN.
-    print("Ei is granting " + str(guild_count) + " electro visions.")
+    async def setup_hook(self):
+        # Add the Commands cog
+        await self.add_cog(Commands(self))
+
+    # EVENT LISTENER FOR WHEN THE BOT HAS SWITCHED FROM OFFLINE TO ONLINE.
+    async def on_ready():
+        # CREATES A COUNTER TO KEEP TRACK OF HOW MANY GUILDS / SERVERS THE BOT IS CONNECTED TO.
+        guild_count = 0
+        # LOOPS THROUGH ALL THE GUILD / SERVERS THAT THE BOT IS ASSOCIATED WITH.
+        for guild in client.guilds:
+            # PRINT THE SERVER'S ID AND NAME.
+            print(f"- {guild.id} (name: {guild.name})")
+            # INCREMENTS THE GUILD COUNTER.
+            guild_count = guild_count + 1
+        # PRINTS HOW MANY GUILDS / SERVERS THE BOT IS IN.
+        print("Ei is granting " + str(guild_count) + " electro visions.")
+
+# CREATES A NEW BOT OBJECT WITH A SPECIFIED PREFIX.
+client = EiBot(command_prefix = "!", help_command = CustomHelpCommand(), intents = discord.Intents.all())
+
+async def main():
+    await client.start(DISCORD_TOKEN)
 
 # EXECUTES THE BOT WITH THE SPECIFIED TOKEN.
 if __name__ == "__main__":
-    client.run(DISCORD_TOKEN)
+    asyncio.run(main())
