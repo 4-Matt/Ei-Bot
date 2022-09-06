@@ -68,7 +68,7 @@ class EiBot(commands.Bot):
         # Add the Commands cog
         await self.add_cog(Commands(self))
 
-    # EVENT LISTENER FOR WHEN THE BOT HAS SWITCHED FROM OFFLINE TO ONLINE.
+    # Called when client receives data from discord
     async def on_ready():
         # CREATES A COUNTER TO KEEP TRACK OF HOW MANY GUILDS / SERVERS THE BOT IS CONNECTED TO.
         guild_count = 0
